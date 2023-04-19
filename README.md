@@ -61,21 +61,21 @@ DROP TABLE IF EXISTS [dbo].[ORDER];
 
 CREATE TABLE [dbo].[ORDER]
 (
-	[OrderId] INT NOT NULL PRIMARY KEY
+    [OrderId] INT NOT NULL PRIMARY KEY
 );
 
 CREATE TABLE [dbo].[ORDERITEM]
 (
-	[OrderItemId] INT NOT NULL PRIMARY KEY,
-	[OrderId] INT FOREIGN KEY REFERENCES [dbo].[ORDER](OrderId),
-	[UnitPrice] DECIMAL(10, 2),
-	[Quantity] INT
+    [OrderItemId] INT NOT NULL PRIMARY KEY,
+    [OrderId] INT FOREIGN KEY REFERENCES [dbo].[ORDER](OrderId),
+    [UnitPrice] DECIMAL(10, 2),
+    [Quantity] INT
 )
 
 CREATE TABLE [dbo].[PRODUCT]
 (
-	[ProductId] INT NOT NULL PRIMARY KEY,
-	[ProductName] NVARCHAR(255)
+    [ProductId] INT NOT NULL PRIMARY KEY,
+    [ProductName] NVARCHAR(255)
 )
 
 INSERT INTO [dbo].[ORDER] ([orderId])
@@ -120,10 +120,10 @@ VALUES (1, 1, 19.99, 2),
 CREATE PROCEDURE [dbo].[GetProducts]
 AS
 BEGIN
-	SET NOCOUNT ON;
+    SET NOCOUNT ON;
 
-	SELECT ProductId, ProductName
-	FROM [ApplicationDB].[dbo].[PRODUCT];
+    SELECT ProductId, ProductName
+    FROM [ApplicationDB].[dbo].[PRODUCT];
 END
 ```
 
@@ -140,11 +140,11 @@ END
 
 ```bash
 dotnet new webapi \
-	--no-https \
-	--no-openapi \
-	--use-minimal-apis \
-	--use-program-main \
-	--name Backend
+  --no-https \
+  --no-openapi \
+  --use-minimal-apis \
+  --use-program-main \
+  --name Backend
 ```
 
 **NOTE:** you might need to refresh your solution expolorer after running these commands.
