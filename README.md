@@ -54,7 +54,55 @@ code ExampleAPI
 
 ```sql
 USE ApplicationDB;
-@@ -90,15 +106,16 @@ VALUES (1, 1, 19.99, 2),
+
+DROP TABLE IF EXISTS [dbo].[PRODUCT];
+DROP TABLE IF EXISTS [dbo].[ORDERITEM];
+DROP TABLE IF EXISTS [dbo].[ORDER];
+
+CREATE TABLE [dbo].[ORDER]
+(
+	[OrderId] INT NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE [dbo].[ORDERITEM]
+(
+	[OrderItemId] INT NOT NULL PRIMARY KEY,
+	[OrderId] INT FOREIGN KEY REFERENCES [dbo].[ORDER](OrderId),
+	[UnitPrice] DECIMAL(10, 2),
+	[Quantity] INT
+)
+
+CREATE TABLE [dbo].[PRODUCT]
+(
+	[ProductId] INT NOT NULL PRIMARY KEY,
+	[ProductName] NVARCHAR(255)
+)
+
+INSERT INTO [dbo].[ORDER] ([orderId])
+VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9), (10);
+
+INSERT INTO [dbo].[PRODUCT] ([productId], [productName])
+VALUES (1, 'Product A'),
+       (2, 'Product B'),
+       (3, 'Product C'),
+       (4, 'Product D'),
+       (5, 'Product E'),
+       (6, 'Product F'),
+       (7, 'Product G'),
+       (8, 'Product H'),
+       (9, 'Product I'),
+       (10, 'Product J');
+
+INSERT INTO [dbo].[ORDERITEM] ([orderItemId], [orderId], [unitPrice], [quantity])
+VALUES (1, 1, 19.99, 2),
+       (2, 1, 15.99, 1),
+       (3, 2, 9.99, 3),
+       (4, 2, 12.99, 2),
+       (5, 3, 25.00, 1),
+       (6, 3, 30.00, 2),
+       (7, 4, 7.99, 5),
+       (8, 5, 15.00, 3),
+       (9, 6, 10.99, 2),
        (10, 6, 20.00, 4);
 ```
 
@@ -71,7 +119,11 @@ USE ApplicationDB;
 ```sql
 CREATE PROCEDURE [dbo].[GetProducts]
 AS
-@@ -110,15 +127,17 @@ BEGIN
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT ProductId, ProductName
+	FROM [ApplicationDB].[dbo].[PRODUCT];
 END
 ```
 
@@ -89,7 +141,9 @@ END
 ```bash
 dotnet new webapi \
 	--no-https \
-@@ -128,18 +147,22 @@ dotnet new webapi \
+	--no-openapi \
+	--use-minimal-apis \
+	--use-program-main \
 	--name Backend
 ```
 
@@ -121,7 +175,71 @@ dotnet new webapi \
 ```c#
 using System.Data;
 using System.Data.SqlClient;
-@@ -211,7 +234,8 @@ public class Product
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+
+namespace ExampleAPI;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var MyAllowSpecificOrigins = "_MyAllowSubdomainPolicy";
+
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: MyAllowSpecificOrigins,
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000") // TODO: change to the port number that the frontend application runs on
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
+
+        var app = builder.Build();
+
+        app.UseCors(MyAllowSpecificOrigins);
+
+        app.MapGet("/products", async (HttpContext httpContext) =>
+        {
+            string connectionString = builder.Configuration.GetConnectionString("local_database");
+
+            List<Product> products = new List<Product>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand("GetProducts", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                await connection.OpenAsync();
+
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        Product product = new Product();
+                        product.ProductId = reader.GetInt32(0);
+                        product.ProductName = reader.GetString(1);
+
+                        products.Add(product);
+                    }
+                }
+            }
+
+            return products;
+        });
+
+        app.Run();
+    }
+}
+
+public class Product
+{
+    public int ProductId { get; set; }
+    public string? ProductName { get; set; }
 }
 ```
 
@@ -130,7 +248,8 @@ using System.Data.SqlClient;
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-@@ -220,22 +244,23 @@ public class Product
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
