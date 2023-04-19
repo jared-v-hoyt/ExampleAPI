@@ -272,4 +272,4 @@ dotnet run
 
 **NOTE:** You can find this port in VS Code by selecting the `PORTS` tab that is located directly to the right of the `TERMINAL` tab when you open up a new terminal in VS Code.
 
-20. Finally, to send the request from your application's frontend, open up the `code` section on the right side panel in Postman and select the appropriate request library that your application uses. Paste the code into your frontend application.
+20. Finally, to send the request from your application's frontend, open up the `code` section on the right side panel in Postman and select the appropriate request library that your application uses. Paste the code into your frontend application. If you want to see an example of how to do this, look read through my [ExampleFrontend](https://github.com/jared-v-hoyt/ExampleFrontend) repository.
