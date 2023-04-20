@@ -153,20 +153,20 @@ dotnet new webapi \
 
 **NOTE:** at some point, you might be prompted to download Mono to your project. This is unnecessary, as the project will automatically download it.
 
-15. We now have to provide a connection string to be able to connect to the database. To do this, go to your `Backend/appsettings.json` file and add the following JSON:
+15. We now have to provide a connection string to be able to connect to the database. To do this, go to your `Backend/appsettings.json` file and replace the existing code with the following JSON:
 
 ```json
 {
-	"Logging": {
-		"LogLevel": {
-			"Default": "Information",
-			"Microsoft.AspNetCore": "Warning"
-		}
-	},
-	"AllowedHosts": "*",
-	"ConnectionStrings": {
-		"local_database": "Server=localhost;Database=ApplicationDB;User Id=sa;Password=P@ssw0rd;"
-	}
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+        "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "local_database": "Server=localhost;Database=ApplicationDB;User Id=sa;Password=P@ssw0rd;"
+  }
 }
 ```
 
